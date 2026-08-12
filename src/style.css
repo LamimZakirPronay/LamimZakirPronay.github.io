@@ -836,7 +836,7 @@ footer .accent-dot {
    over the same `transform` property */
 #fox-guide .fox-facing {
   width: 108px;
-  height: 68px;
+  height: 74px;
   transition: transform 0.2s ease;
 }
 
@@ -890,69 +890,16 @@ footer .accent-dot {
   overflow: visible;
 }
 
-#fox-guide .fox-body,
-#fox-guide .fox-leg-part,
-#fox-guide .fox-tail,
-#fox-guide .fox-head,
-#fox-guide .fox-ear {
-  fill: var(--fox-orange);
+/* the illustration's own paths carry their fill (var(--fox-orange) /
+   --fox-cream / --fox-ink) inline in the SVG markup, so no per-part CSS
+   is needed here — it's one static drawing, not separately-rigged limbs */
+
+#fox-guide.alert .fox-facing {
+  transform: scale(1.06);
 }
 
-#fox-guide .fox-spine {
-  fill: none;
-  stroke: var(--fox-orange-dark);
-  stroke-width: 2.2;
-  stroke-linecap: round;
-  opacity: 0.6;
-}
-
-#fox-guide .fox-tail-shade,
-#fox-guide .fox-sock,
-#fox-guide .fox-ear-tip,
-#fox-guide .fox-eye-mark {
-  fill: var(--fox-orange-dark);
-}
-
-#fox-guide .fox-belly,
-#fox-guide .fox-tail-tip,
-#fox-guide .fox-inner-ear,
-#fox-guide .fox-muzzle,
-#fox-guide .fox-eye-base,
-#fox-guide .fox-eye-highlight {
-  fill: var(--fox-cream);
-}
-
-#fox-guide .fox-eye,
-#fox-guide .fox-nose,
-#fox-guide .fox-paw,
-#fox-guide .fox-whisker {
-  fill: var(--fox-ink);
-}
-
-/* legs, ears and tail are driven per-frame from JS (inline transform) while
-   running, all sharing one bound-phase so a footfall, a stride extension,
-   an ear tilt and the tail lag all land in sync — that's what reads as a
-   gait rather than independently-timed CSS loops. Only their pivot points
-   live here. */
-#fox-guide #fox-ear-wrap {
-  transform-box: fill-box;
-  transform-origin: 50% 100%;
-  transition: transform 0.2s ease;
-}
-
-#fox-guide.alert #fox-ear-wrap {
-  transform: rotate(-14deg);
-}
-
-#fox-guide #fox-leg-front,
-#fox-guide #fox-leg-back {
-  transform-box: fill-box;
-  transform-origin: 50% 0%;
-}
-
-#fox-guide #fox-tail-wrap {
-  transform-box: fill-box;
-  transform-origin: 97% 94%;
+#fox-guide.alert .fox-facing.face-left {
+  transform: scaleX(-1) scale(1.06);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -1004,6 +951,6 @@ footer .accent-dot {
 
   #fox-guide .fox-facing {
     width: 80px;
-    height: 50px;
+    height: 55px;
   }
 }

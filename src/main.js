@@ -186,11 +186,7 @@ function initFox() {
   const bob = document.getElementById('fox-bob');
   const btn = document.getElementById('fox-btn');
   const label = document.getElementById('fox-label');
-  const legFront = document.getElementById('fox-leg-front');
-  const legBack = document.getElementById('fox-leg-back');
-  const tailWrap = document.getElementById('fox-tail-wrap');
-  const earWrap = document.getElementById('fox-ear-wrap');
-  if (!guide || !facing || !bob || !btn || !label || !legFront || !legBack || !tailWrap || !earWrap) {
+  if (!guide || !facing || !bob || !btn || !label) {
     return { goToSection: () => {}, announce: () => {} };
   }
 
@@ -199,38 +195,16 @@ function initFox() {
   const IDLE_MIN_MS = 3500;
   const IDLE_MAX_MS = 7500;
   const WANDER_PX = 130; // how far a spontaneous idle wander roams from its current spot
-
-  // A hand-keyed running cycle, shown one discrete pose at a time (no
-  // tweening between them) — the same technique a sprite-sheet GIF uses,
-  // just drawn as SVG-transform values instead of pre-rendered frames.
-  // legF/legB: leg rotation in degrees. y: body lift in px (0 = down/contact,
-  // negative = airborne). tail/ear: degrees. Frames 0-3 are one full stride;
-  // 4-7 repeat it with legs swapped so the cycle doesn't visibly favor a side.
-  const RUN_FRAMES = [
-    { legF: 20, legB: -5, y: -2, tail: -4, ear: -3 }, // contact
-    { legF: 5, legB: 10, y: 0, tail: 0, ear: 0 }, // gather/compress
-    { legF: -15, legB: 25, y: -6, tail: 4, ear: 5 }, // push off
-    { legF: -32, legB: 30, y: -16, tail: 8, ear: 10 }, // full stretch, airborne
-    { legF: -20, legB: 5, y: -2, tail: 4, ear: 3 }, // contact
-    { legF: -5, legB: -10, y: 0, tail: 0, ear: 0 }, // gather/compress
-    { legF: 15, legB: -25, y: -6, tail: -4, ear: -5 }, // push off
-    { legF: 32, legB: -30, y: -16, tail: -8, ear: -10 } // full stretch, airborne
-  ];
-  const FRAME_MS = 85; // ~11.7fps — a hand-drawn cadence, not a smooth 60fps tween
   const PX_PER_MS = 0.62; // run speed, sets how long a given distance takes
   const MIN_RUN_MS = 480;
   const MAX_RUN_MS = 2200;
-
-  function applyFrame(f) {
-    bob.style.transform = `translateY(${f.y}px)`;
-    legFront.style.transform = `rotate(${f.legF}deg)`;
-    legBack.style.transform = `rotate(${f.legB}deg)`;
-    tailWrap.style.transform = `rotate(${f.tail}deg)`;
-    earWrap.style.transform = `rotate(${f.ear}deg)`;
-  }
+  const PX_PER_BOUND = 110; // one hop roughly this many px, so distance sets hop count
+  const MIN_BOUNDS = 2;
+  const MAX_BOUNDS = 6;
+  const HOP_HEIGHT = 10;
 
   function xForFraction(frac) {
-    const foxWidth = facing.getBoundingClientRect().width || 92;
+    const foxWidth = facing.getBoundingClientRect().width || 108;
     const travel = Math.max(0, window.innerWidth - foxWidth - MARGIN * 2);
     return MARGIN + Math.min(1, Math.max(0, frac)) * travel;
   }
@@ -240,14 +214,6 @@ function initFox() {
   let runToken = 0;
   let idleTimer = null;
   guide.style.left = currentX + 'px';
-
-  function resetPose() {
-    bob.style.transform = '';
-    legFront.style.transform = '';
-    legBack.style.transform = '';
-    tailWrap.style.transform = '';
-    earWrap.style.transform = '';
-  }
 
   let labelHideTimer = null;
   let alertTimer = null;
@@ -285,6 +251,7 @@ function initFox() {
     const startX = currentX;
     const dist = Math.abs(dx);
     const durationMs = Math.min(MAX_RUN_MS, Math.max(MIN_RUN_MS, dist / PX_PER_MS));
+    const bounds = Math.min(MAX_BOUNDS, Math.max(MIN_BOUNDS, Math.round(dist / PX_PER_BOUND)));
     const startTime = performance.now();
     const goingLeft = dx < 0;
     if (goingLeft !== facingLeft) {
@@ -292,37 +259,31 @@ function initFox() {
       facing.classList.toggle('face-left', facingLeft);
     }
     bob.classList.remove('jump');
-    let lastFrameIndex = -1;
 
     function step(now) {
       if (myRun !== runToken) return; // a newer run superseded this one
-      const elapsed = now - startTime;
-      const t = Math.min(1, elapsed / durationMs);
+      const t = Math.min(1, (now - startTime) / durationMs);
 
-      // position glides smoothly across the screen — only the pose stepping
-      // through RUN_FRAMES is discrete, same split a sprite-sheet run uses
-      // (continuous world position, stepped sprite frame)
+      // position eases smoothly across the screen while a repeated hop arc
+      // (independent of the ease) gives it a bounding, energetic feel that
+      // suits the mid-leap pose of the artwork itself
       currentX = startX + dx * easeRun(t);
+      const hop = -Math.abs(Math.sin(t * bounds * Math.PI)) * HOP_HEIGHT;
       guide.style.left = currentX + 'px';
-
-      const frameIndex = Math.floor(elapsed / FRAME_MS) % RUN_FRAMES.length;
-      if (frameIndex !== lastFrameIndex) {
-        lastFrameIndex = frameIndex;
-        applyFrame(RUN_FRAMES[frameIndex]);
-      }
+      bob.style.transform = `translateY(${hop}px)`;
 
       if (t < 1) {
         requestAnimationFrame(step);
       } else {
-        resetPose();
+        bob.style.transform = '';
         if (onArrive) onArrive();
       }
     }
     requestAnimationFrame(step);
   }
 
-  // a short in-place wiggle (tail + ear only, no travel) — the fox's other
-  // idle behavior alongside wandering, so it isn't *always* walking somewhere
+  // a short in-place wobble — the fox's other idle behavior alongside
+  // wandering, so it isn't *always* walking somewhere
   function fidgetInPlace(onDone) {
     if (prefersReduced) {
       if (onDone) onDone();
@@ -330,19 +291,17 @@ function initFox() {
     }
     const myRun = ++runToken;
     const startTime = performance.now();
-    const FIDGET_MS = 900;
+    const FIDGET_MS = 700;
     function step(now) {
       if (myRun !== runToken) return;
       const t = Math.min(1, (now - startTime) / FIDGET_MS);
       const decay = 1 - t;
-      const phase = t * Math.PI * 4;
-      tailWrap.style.transform = `rotate(${Math.sin(phase) * 7 * decay}deg)`;
-      earWrap.style.transform = `rotate(${Math.sin(phase * 1.3) * 9 * decay}deg)`;
+      const phase = t * Math.PI * 3;
+      facing.style.transform = `${facingLeft ? 'scaleX(-1) ' : ''}rotate(${Math.sin(phase) * 4 * decay}deg)`;
       if (t < 1) {
         requestAnimationFrame(step);
       } else {
-        tailWrap.style.transform = '';
-        earWrap.style.transform = '';
+        facing.style.transform = '';
         if (onDone) onDone();
       }
     }
@@ -385,19 +344,11 @@ function initFox() {
     showLabel(FOX_MESSAGES[msgIndex % FOX_MESSAGES.length], 2600);
     msgIndex++;
     if (!prefersReduced) {
-      runToken++; // cancel any in-flight run so the click-jump owns these transforms
-      resetPose();
-      // legs splay into the same full-stretch pose the run cycle uses, while
-      // the CSS keyframe handles the bob's own up-down arc for this one
-      const leap = RUN_FRAMES[3];
-      legFront.style.transform = `rotate(${leap.legF}deg)`;
-      legBack.style.transform = `rotate(${leap.legB}deg)`;
-      tailWrap.style.transform = `rotate(${leap.tail}deg)`;
-      earWrap.style.transform = `rotate(${leap.ear}deg)`;
+      runToken++; // cancel any in-flight run so the click-jump owns the bob transform
+      bob.style.transform = '';
       bob.classList.add('jump');
       setTimeout(() => {
         bob.classList.remove('jump');
-        resetPose();
         scheduleIdle();
       }, 520);
     } else {
@@ -408,7 +359,7 @@ function initFox() {
   scheduleIdle();
 
   window.addEventListener('resize', () => {
-    const foxWidth = facing.getBoundingClientRect().width || 92;
+    const foxWidth = facing.getBoundingClientRect().width || 108;
     const maxX = Math.max(MARGIN, window.innerWidth - foxWidth - MARGIN);
     if (currentX > maxX) {
       currentX = maxX;
