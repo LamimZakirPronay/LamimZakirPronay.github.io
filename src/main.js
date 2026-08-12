@@ -168,43 +168,93 @@ function renderContact() {
 }
 
 // ---------------------------------------------------------------------------
-// fox guide — tilts with scroll motion, announces the active section
+// fox guide — walks left-to-right as you scroll top-to-bottom of the page,
+// announces the active section, and reacts to a click/tap with a message
 // ---------------------------------------------------------------------------
+const FOX_MESSAGES = [
+  'Five research papers published, and counting.',
+  'Currently building Salesforce + AI systems at Accelerize360.',
+  'Five Salesforce certifications, backed by production work.',
+  "I'm just here to keep you company while you scroll.",
+  'Say hello — the contact section has my email.'
+];
+
 function initFox() {
   const guide = document.getElementById('fox-guide');
-  const rotateEl = document.getElementById('fox-rotate');
+  const facing = document.getElementById('fox-facing');
+  const bob = document.getElementById('fox-bob');
+  const btn = document.getElementById('fox-btn');
   const label = document.getElementById('fox-label');
-  if (!guide || !rotateEl || !label) return { announce: () => {} };
+  if (!guide || !facing || !bob || !btn || !label) return { announce: () => {} };
 
-  let lastY = window.scrollY;
-  let tiltResetTimer = null;
   const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const MARGIN = 20;
 
-  function onScroll() {
-    if (prefersReduced) return;
-    const y = window.scrollY;
-    const delta = y - lastY;
-    lastY = y;
-    const tilt = Math.max(-10, Math.min(10, delta * 1.4));
-    rotateEl.style.transform = `rotate(${tilt}deg)`;
-    clearTimeout(tiltResetTimer);
-    tiltResetTimer = setTimeout(() => {
-      rotateEl.style.transform = 'rotate(0deg)';
-    }, 220);
+  function computeTargetX() {
+    const foxWidth = facing.getBoundingClientRect().width || 92;
+    const max = document.documentElement.scrollHeight - window.innerHeight;
+    const frac = max > 0 ? Math.min(1, Math.max(0, window.scrollY / max)) : 0;
+    const travel = Math.max(0, window.innerWidth - foxWidth - MARGIN * 2);
+    return MARGIN + frac * travel;
   }
-  window.addEventListener('scroll', onScroll, { passive: true });
+
+  let currentX = computeTargetX();
+  let facingLeft = false;
+  guide.style.left = currentX + 'px';
 
   let labelHideTimer = null;
-  let perkTimer = null;
-  function announce(text) {
+  let alertTimer = null;
+  function showLabel(text, duration) {
     label.textContent = text;
     label.classList.add('show');
-    guide.classList.add('listening');
+    guide.classList.add('alert');
     clearTimeout(labelHideTimer);
-    clearTimeout(perkTimer);
-    perkTimer = setTimeout(() => guide.classList.remove('listening'), 500);
-    labelHideTimer = setTimeout(() => label.classList.remove('show'), 1800);
+    clearTimeout(alertTimer);
+    alertTimer = setTimeout(() => guide.classList.remove('alert'), 350);
+    labelHideTimer = setTimeout(() => label.classList.remove('show'), duration);
   }
+
+  function announce(text) {
+    showLabel(text, 1800);
+  }
+
+  let msgIndex = 0;
+  btn.addEventListener('click', () => {
+    showLabel(FOX_MESSAGES[msgIndex % FOX_MESSAGES.length], 2600);
+    msgIndex++;
+    if (!prefersReduced) {
+      bob.classList.remove('walking');
+      bob.classList.add('jump');
+      setTimeout(() => bob.classList.remove('jump'), 520);
+    }
+  });
+
+  if (prefersReduced) {
+    window.addEventListener('resize', () => {
+      guide.style.left = computeTargetX() + 'px';
+    });
+    return { announce };
+  }
+
+  function frame() {
+    const targetX = computeTargetX();
+    const dx = targetX - currentX;
+    if (Math.abs(dx) > 0.4) {
+      currentX += dx * 0.08;
+      bob.classList.add('walking');
+      const goingLeft = dx < 0;
+      if (goingLeft !== facingLeft) {
+        facingLeft = goingLeft;
+        facing.classList.toggle('face-left', facingLeft);
+      }
+    } else {
+      currentX = targetX;
+      bob.classList.remove('walking');
+    }
+    guide.style.left = currentX + 'px';
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
 
   return { announce };
 }

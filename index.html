@@ -173,23 +173,26 @@
       built with vite, deployed on github pages <span class="accent-dot">·</span> © <span id="year"></span> Lamim Zakir Pronay
     </footer>
 
-    <div id="fox-guide" aria-hidden="true">
+    <div id="fox-guide">
       <span class="fox-label" id="fox-label"></span>
-      <div class="fox-wrap" id="fox-rotate">
-        <div class="fox-float">
-          <svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
-            <path class="fox-head" d="M16,50 L46,42 L60,30 L74,42 L104,50 L92,88 L60,112 L28,88 Z" />
-            <polygon class="fox-ear-l" points="14,48 34,10 46,50" />
-            <polygon class="fox-ear-r" points="106,48 86,10 74,50" />
-            <polygon class="fox-inner-ear" points="20,42 33,18 39,44" />
-            <polygon class="fox-inner-ear" points="100,42 87,18 81,44" />
-            <ellipse class="fox-cheek" cx="42" cy="68" rx="13" ry="19" transform="rotate(-8 42 68)" />
-            <ellipse class="fox-cheek" cx="78" cy="68" rx="13" ry="19" transform="rotate(8 78 68)" />
-            <ellipse class="fox-cheek" cx="60" cy="93" rx="11" ry="15" />
-            <circle class="fox-eye" cx="46" cy="58" r="4.5" />
-            <circle class="fox-eye" cx="74" cy="58" r="4.5" />
-            <polygon class="fox-nose" points="54,90 66,90 60,100" />
-          </svg>
+      <div class="fox-facing" id="fox-facing">
+        <div class="fox-bob" id="fox-bob">
+          <button type="button" class="fox-btn" id="fox-btn" aria-label="Fox guide — click for a message">
+            <svg viewBox="0 0 200 110" xmlns="http://www.w3.org/2000/svg">
+              <path class="fox-tail" d="M58,60 C35,55 18,35 26,15 C32,2 52,3 50,18 C48,32 62,42 58,60 Z" />
+              <ellipse class="fox-tail-tip" cx="32" cy="16" rx="11" ry="10" />
+              <rect class="fox-leg-back" x="68" y="72" width="13" height="32" rx="6.5" />
+              <ellipse class="fox-body" cx="100" cy="55" rx="50" ry="24" />
+              <rect class="fox-leg-front" x="122" y="72" width="13" height="32" rx="6.5" />
+              <ellipse class="fox-belly" cx="92" cy="66" rx="26" ry="12" />
+              <polygon class="fox-ear" points="148,20 132,44 158,42" />
+              <polygon class="fox-inner-ear" points="147,26 138,40 152,38" />
+              <ellipse class="fox-head" cx="150" cy="45" rx="22" ry="18" />
+              <polygon class="fox-head" points="167,38 197,48 168,56" />
+              <circle class="fox-eye" cx="158" cy="40" r="3.2" />
+              <circle class="fox-nose" cx="193" cy="48" r="3" />
+            </svg>
+          </button>
         </div>
       </div>
     </div>

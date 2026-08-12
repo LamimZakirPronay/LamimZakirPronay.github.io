@@ -751,7 +751,7 @@ nav.links a.active::after {
 
 footer {
   text-align: center;
-  padding: 40px 24px 60px;
+  padding: 40px 24px 100px;
   color: var(--ink-faint);
   font-family: var(--mono);
   font-size: 12px;
@@ -782,12 +782,12 @@ footer .accent-dot {
 
 #fox-guide {
   position: fixed;
-  right: 22px;
-  bottom: 22px;
+  left: 20px;
+  bottom: 14px;
   z-index: 90;
   display: flex;
-  align-items: flex-end;
-  gap: 10px;
+  flex-direction: column;
+  align-items: center;
   pointer-events: none;
 }
 
@@ -802,52 +802,42 @@ footer .accent-dot {
   padding: 7px 12px;
   white-space: nowrap;
   opacity: 0;
-  transform: translateX(6px);
+  transform: translateY(4px);
   transition: opacity 0.3s ease, transform 0.3s ease;
-  margin-bottom: 6px;
+  margin-bottom: 8px;
 }
 
 #fox-guide .fox-label.show {
   opacity: 1;
-  transform: translateX(0);
+  transform: translateY(0);
 }
 
-#fox-guide .fox-wrap {
-  width: 58px;
+/* three nested layers so positioning / facing-flip / walk-bob never fight
+   over the same `transform` property */
+#fox-guide .fox-facing {
+  width: 92px;
   height: 58px;
-  transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
-  filter: drop-shadow(0 6px 14px rgba(34, 27, 22, 0.18));
+  transition: transform 0.2s ease;
 }
 
-#fox-guide .fox-float {
+#fox-guide .fox-facing.face-left {
+  transform: scaleX(-1);
+}
+
+#fox-guide .fox-bob {
   width: 100%;
   height: 100%;
-  animation: fox-breathe 4s ease-in-out infinite;
 }
 
-#fox-guide svg {
-  width: 100%;
-  height: 100%;
-  overflow: visible;
+#fox-guide .fox-bob.walking {
+  animation: fox-walk-bob 0.45s ease-in-out infinite;
 }
 
-#fox-guide .fox-head,
-#fox-guide .fox-ear-l,
-#fox-guide .fox-ear-r {
-  fill: var(--accent);
+#fox-guide .fox-bob.jump {
+  animation: fox-jump 0.5s ease;
 }
 
-#fox-guide .fox-inner-ear,
-#fox-guide .fox-cheek {
-  fill: var(--bg-card);
-}
-
-#fox-guide .fox-eye,
-#fox-guide .fox-nose {
-  fill: var(--ink);
-}
-
-@keyframes fox-breathe {
+@keyframes fox-walk-bob {
   0%,
   100% {
     transform: translateY(0);
@@ -857,23 +847,109 @@ footer .accent-dot {
   }
 }
 
-#fox-guide .fox-ear-l,
-#fox-guide .fox-ear-r {
+@keyframes fox-jump {
+  0% {
+    transform: translateY(0);
+  }
+  30% {
+    transform: translateY(-16px);
+  }
+  55% {
+    transform: translateY(0);
+  }
+  75% {
+    transform: translateY(-6px);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+#fox-guide .fox-btn {
+  all: unset;
+  display: block;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+  pointer-events: auto;
+  filter: drop-shadow(0 6px 14px rgba(34, 27, 22, 0.18));
+}
+
+#fox-guide .fox-btn svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+#fox-guide .fox-body,
+#fox-guide .fox-leg-front,
+#fox-guide .fox-leg-back,
+#fox-guide .fox-tail,
+#fox-guide .fox-head,
+#fox-guide .fox-ear {
+  fill: var(--accent);
+}
+
+#fox-guide .fox-belly,
+#fox-guide .fox-tail-tip,
+#fox-guide .fox-inner-ear {
+  fill: var(--bg-card);
+}
+
+#fox-guide .fox-eye,
+#fox-guide .fox-nose {
+  fill: var(--ink);
+}
+
+#fox-guide .fox-ear {
   transform-box: fill-box;
-  transform-origin: 50% 90%;
-  transition: transform 0.25s ease;
+  transform-origin: 50% 100%;
+  transition: transform 0.2s ease;
 }
 
-#fox-guide.listening .fox-ear-l {
-  transform: rotate(-8deg);
+#fox-guide.alert .fox-ear {
+  transform: rotate(-14deg);
 }
 
-#fox-guide.listening .fox-ear-r {
-  transform: rotate(8deg);
+#fox-guide .fox-leg-front,
+#fox-guide .fox-leg-back {
+  transform-box: fill-box;
+  transform-origin: 50% 0%;
+}
+
+#fox-guide .fox-bob.walking .fox-leg-front {
+  animation: fox-walk-front 0.45s ease-in-out infinite;
+}
+
+#fox-guide .fox-bob.walking .fox-leg-back {
+  animation: fox-walk-back 0.45s ease-in-out infinite;
+}
+
+@keyframes fox-walk-front {
+  0%,
+  100% {
+    transform: rotate(18deg);
+  }
+  50% {
+    transform: rotate(-18deg);
+  }
+}
+
+@keyframes fox-walk-back {
+  0%,
+  100% {
+    transform: rotate(-18deg);
+  }
+  50% {
+    transform: rotate(18deg);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  #fox-guide .fox-float {
+  #fox-guide .fox-bob.walking,
+  #fox-guide .fox-bob.jump,
+  #fox-guide .fox-bob.walking .fox-leg-front,
+  #fox-guide .fox-bob.walking .fox-leg-back {
     animation: none;
   }
 }
@@ -916,12 +992,11 @@ footer .accent-dot {
   }
 
   #fox-guide {
-    right: 14px;
-    bottom: 14px;
+    bottom: 10px;
   }
 
-  #fox-guide .fox-wrap {
-    width: 46px;
-    height: 46px;
+  #fox-guide .fox-facing {
+    width: 68px;
+    height: 43px;
   }
 }
