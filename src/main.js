@@ -186,12 +186,25 @@ function initFox() {
   const bob = document.getElementById('fox-bob');
   const btn = document.getElementById('fox-btn');
   const label = document.getElementById('fox-label');
-  if (!guide || !facing || !bob || !btn || !label) return { goToSection: () => {}, announce: () => {} };
+  const legFront = document.getElementById('fox-leg-front');
+  const legBack = document.getElementById('fox-leg-back');
+  const tailWrap = document.getElementById('fox-tail-wrap');
+  const earWrap = document.getElementById('fox-ear-wrap');
+  if (!guide || !facing || !bob || !btn || !label || !legFront || !legBack || !tailWrap || !earWrap) {
+    return { goToSection: () => {}, announce: () => {} };
+  }
 
   const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const MARGIN = 20;
-  const HOP_HEIGHT = 26;
-  const RUN_MS = 620;
+  const HOP_HEIGHT = 15; // per-bound height, not a single arc over the whole run
+  const PX_PER_BOUND = 140; // roughly one stride length, so distance sets stride count
+  const MS_PER_BOUND = 150;
+  const MIN_BOUNDS = 2;
+  const MAX_BOUNDS = 6;
+  const FRONT_REACH = 34; // deg, leg swing at full extension
+  const BACK_REACH = 30;
+  const TAIL_SWING = 10;
+  const EAR_TILT = 12;
 
   function xForFraction(frac) {
     const foxWidth = facing.getBoundingClientRect().width || 92;
@@ -203,6 +216,14 @@ function initFox() {
   let facingLeft = false;
   let runToken = 0;
   guide.style.left = currentX + 'px';
+
+  function resetPose() {
+    bob.style.transform = '';
+    legFront.style.transform = '';
+    legBack.style.transform = '';
+    tailWrap.style.transform = '';
+    earWrap.style.transform = '';
+  }
 
   let labelHideTimer = null;
   let alertTimer = null;
@@ -220,7 +241,9 @@ function initFox() {
     showLabel(text, 1800);
   }
 
-  const easeOutCubic = (t) => 1 - Math.pow(1 - t, 3);
+  // accelerate into the run, decelerate into the landing — reads as a dash
+  // rather than one long glide-to-a-stop
+  const easeRun = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
 
   function runTo(targetX, onArrive) {
     if (prefersReduced) {
@@ -236,27 +259,40 @@ function initFox() {
     }
     const myRun = ++runToken;
     const startX = currentX;
+    const dist = Math.abs(dx);
+    const bounds = Math.min(MAX_BOUNDS, Math.max(MIN_BOUNDS, Math.round(dist / PX_PER_BOUND)));
+    const durationMs = bounds * MS_PER_BOUND;
     const startTime = performance.now();
     const goingLeft = dx < 0;
+    const dir = goingLeft ? -1 : 1;
     if (goingLeft !== facingLeft) {
       facingLeft = goingLeft;
       facing.classList.toggle('face-left', facingLeft);
     }
     bob.classList.remove('jump');
-    bob.classList.add('running');
 
     function step(now) {
       if (myRun !== runToken) return; // a newer run superseded this one
-      const t = Math.min(1, (now - startTime) / RUN_MS);
-      currentX = startX + dx * easeOutCubic(t);
-      const hop = -Math.sin(t * Math.PI) * HOP_HEIGHT;
+      const t = Math.min(1, (now - startTime) / durationMs);
+      currentX = startX + dx * easeRun(t);
       guide.style.left = currentX + 'px';
-      bob.style.transform = `translateY(${hop}px)`;
+
+      // one shared phase drives the hop, both legs' stride, the tail lag and
+      // the ear tilt — that shared timing is what makes it read as one gait
+      const phase = t * bounds * Math.PI;
+      const stride = Math.sin(phase); // -1..1, one full stride cycle per bound
+      const hopFactor = Math.abs(stride); // 0 at every landing, 1 at every peak
+
+      bob.style.transform = `translateY(${-hopFactor * HOP_HEIGHT}px) scaleY(${1 + hopFactor * 0.05})`;
+      legFront.style.transform = `rotate(${dir * FRONT_REACH * stride}deg)`;
+      legBack.style.transform = `rotate(${-dir * BACK_REACH * stride}deg)`;
+      tailWrap.style.transform = `rotate(${dir * TAIL_SWING * Math.sin(phase - 0.6)}deg)`;
+      earWrap.style.transform = `rotate(${-dir * EAR_TILT * hopFactor}deg)`;
+
       if (t < 1) {
         requestAnimationFrame(step);
       } else {
-        bob.classList.remove('running');
-        bob.style.transform = '';
+        resetPose();
         if (onArrive) onArrive();
       }
     }
@@ -273,8 +309,7 @@ function initFox() {
     msgIndex++;
     if (!prefersReduced) {
       runToken++; // cancel any in-flight run so the click-jump owns the bob transform
-      bob.classList.remove('running');
-      bob.style.transform = '';
+      resetPose();
       bob.classList.add('jump');
       setTimeout(() => bob.classList.remove('jump'), 520);
     }

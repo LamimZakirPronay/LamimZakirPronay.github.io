@@ -890,54 +890,34 @@ footer .accent-dot {
   fill: var(--ink);
 }
 
-#fox-guide .fox-ear {
+/* legs, ears and tail are driven per-frame from JS (inline transform) while
+   running, all sharing one bound-phase so a footfall, a stride extension,
+   an ear tilt and the tail lag all land in sync — that's what reads as a
+   gait rather than independently-timed CSS loops. Only their pivot points
+   live here. */
+#fox-guide #fox-ear-wrap {
   transform-box: fill-box;
   transform-origin: 50% 100%;
   transition: transform 0.2s ease;
 }
 
-#fox-guide.alert .fox-ear {
+#fox-guide.alert #fox-ear-wrap {
   transform: rotate(-14deg);
 }
 
-#fox-guide .fox-leg-front,
-#fox-guide .fox-leg-back {
+#fox-guide #fox-leg-front,
+#fox-guide #fox-leg-back {
   transform-box: fill-box;
   transform-origin: 50% 0%;
 }
 
-#fox-guide .fox-bob.running .fox-leg-front {
-  animation: fox-run-front 0.2s ease-in-out infinite;
-}
-
-#fox-guide .fox-bob.running .fox-leg-back {
-  animation: fox-run-back 0.2s ease-in-out infinite;
-}
-
-@keyframes fox-run-front {
-  0%,
-  100% {
-    transform: rotate(30deg);
-  }
-  50% {
-    transform: rotate(-30deg);
-  }
-}
-
-@keyframes fox-run-back {
-  0%,
-  100% {
-    transform: rotate(-30deg);
-  }
-  50% {
-    transform: rotate(30deg);
-  }
+#fox-guide #fox-tail-wrap {
+  transform-box: fill-box;
+  transform-origin: 92% 85%;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  #fox-guide .fox-bob.jump,
-  #fox-guide .fox-bob.running .fox-leg-front,
-  #fox-guide .fox-bob.running .fox-leg-back {
+  #fox-guide .fox-bob.jump {
     animation: none;
   }
 }
