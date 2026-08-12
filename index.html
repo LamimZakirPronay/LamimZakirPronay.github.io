@@ -180,21 +180,50 @@
           <button type="button" class="fox-btn" id="fox-btn" aria-label="Fox guide — click for a message">
             <svg viewBox="0 0 200 110" xmlns="http://www.w3.org/2000/svg">
               <g id="fox-tail-wrap">
-                <path class="fox-tail" d="M58,60 C35,55 18,35 26,15 C32,2 52,3 50,18 C48,32 62,42 58,60 Z" />
-                <ellipse class="fox-tail-tip" cx="32" cy="16" rx="11" ry="10" />
+                <path class="fox-tail" d="M58,64 C32,58 12,36 18,12 C22,-4 48,-2 47,15 C46,28 33,32 33,43 C33,53 50,56 58,64 Z" />
+                <path class="fox-tail-shade" d="M50,56 C34,50 23,36 27,18 C29,9 39,9 39,17 C39,25 31,29 31,39 C31,47 44,50 50,56 Z" />
+                <ellipse class="fox-tail-tip" cx="23" cy="13" rx="13" ry="12" />
               </g>
-              <rect id="fox-leg-back" class="fox-leg-back" x="68" y="72" width="13" height="32" rx="6.5" />
-              <ellipse class="fox-body" cx="100" cy="55" rx="50" ry="24" />
-              <rect id="fox-leg-front" class="fox-leg-front" x="122" y="72" width="13" height="32" rx="6.5" />
-              <ellipse class="fox-belly" cx="92" cy="66" rx="26" ry="12" />
+
+              <g id="fox-leg-back">
+                <path class="fox-leg-part" d="M60,68 C58,74 58,82 63,88 L74,88 C76,80 75,72 72,68 Z" />
+                <path class="fox-leg-part" d="M64,86 C60,90 57,96 58,102 L69,102 C70,96 70,90 67,86 Z" />
+                <rect class="fox-sock" x="57" y="95" width="14" height="9" rx="3" />
+                <ellipse class="fox-paw" cx="63" cy="103" rx="7" ry="3.5" />
+              </g>
+
+              <path class="fox-body" d="M58,70 C52,48 68,30 98,27 C122,25 142,32 148,44 C151,52 148,60 142,66 L136,70 C130,58 114,50 96,50 C80,50 66,58 60,70 Z" />
+              <path class="fox-spine" d="M64,50 C82,34 112,30 138,40" />
+
+              <g id="fox-leg-front">
+                <path class="fox-leg-part" d="M136,68 C134,74 134,82 138,88 L149,88 C151,80 150,72 147,68 Z" />
+                <path class="fox-leg-part" d="M138,86 C136,90 136,96 138,102 L149,102 C151,96 152,90 149,86 Z" />
+                <rect class="fox-sock" x="136" y="95" width="14" height="9" rx="3" />
+                <ellipse class="fox-paw" cx="143" cy="103" rx="7" ry="3.5" />
+              </g>
+
+              <ellipse class="fox-belly" cx="98" cy="64" rx="34" ry="11" />
+
               <g id="fox-ear-wrap">
-                <polygon class="fox-ear" points="148,20 132,44 158,42" />
-                <polygon class="fox-inner-ear" points="147,26 138,40 152,38" />
+                <polygon class="fox-ear" points="126,32 137,3 159,29" />
+                <polygon class="fox-ear-tip" points="133,9 137,3 141,11" />
+                <polygon class="fox-inner-ear" points="130,28 138,11 148,27" />
               </g>
-              <ellipse class="fox-head" cx="150" cy="45" rx="22" ry="18" />
-              <polygon class="fox-head" points="167,38 197,48 168,56" />
-              <circle class="fox-eye" cx="158" cy="40" r="3.2" />
-              <circle class="fox-nose" cx="193" cy="48" r="3" />
+
+              <path class="fox-head" d="M128,30 C142,20 160,21 172,32 C180,40 181,50 177,58 C173,65 163,68 152,66 C140,64 130,56 127,46 C125,40 125,34 128,30 Z" />
+              <polygon class="fox-head" points="170,42 199,49 172,58" />
+              <path class="fox-muzzle" d="M168,50 C179,48 192,49 198,51 C193,56 180,59 169,58 C165,56 165,52 168,50 Z" />
+              <ellipse class="fox-muzzle" cx="145" cy="56" rx="14" ry="10" />
+
+              <path class="fox-eye-mark" d="M147,41 C154,44 162,45 168,44 L167,47 C159,48 151,47 145,44 Z" />
+              <ellipse class="fox-eye-base" cx="152" cy="37" rx="5.5" ry="4.5" />
+              <circle class="fox-eye" cx="153.5" cy="37.5" r="3" />
+              <circle class="fox-eye-highlight" cx="155" cy="36" r="0.9" />
+
+              <ellipse class="fox-nose" cx="196" cy="49" rx="3.6" ry="2.6" />
+              <circle class="fox-whisker" cx="180" cy="52" r="0.7" />
+              <circle class="fox-whisker" cx="186" cy="54" r="0.7" />
+              <circle class="fox-whisker" cx="191" cy="55.5" r="0.7" />
             </svg>
           </button>
         </div>

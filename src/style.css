@@ -18,7 +18,9 @@
   /* the fox keeps its own fixed colors regardless of the site accent —
      a blue-and-green fox would just look wrong */
   --fox-orange: #d9622b;
+  --fox-orange-dark: #a8461c;
   --fox-cream: #fffaf3;
+  --fox-ink: #2b1810;
   --radius: 10px;
   --radius-sm: 6px;
   --maxw: 1080px;
@@ -889,23 +891,42 @@ footer .accent-dot {
 }
 
 #fox-guide .fox-body,
-#fox-guide .fox-leg-front,
-#fox-guide .fox-leg-back,
+#fox-guide .fox-leg-part,
 #fox-guide .fox-tail,
 #fox-guide .fox-head,
 #fox-guide .fox-ear {
   fill: var(--fox-orange);
 }
 
+#fox-guide .fox-spine {
+  fill: none;
+  stroke: var(--fox-orange-dark);
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  opacity: 0.6;
+}
+
+#fox-guide .fox-tail-shade,
+#fox-guide .fox-sock,
+#fox-guide .fox-ear-tip,
+#fox-guide .fox-eye-mark {
+  fill: var(--fox-orange-dark);
+}
+
 #fox-guide .fox-belly,
 #fox-guide .fox-tail-tip,
-#fox-guide .fox-inner-ear {
+#fox-guide .fox-inner-ear,
+#fox-guide .fox-muzzle,
+#fox-guide .fox-eye-base,
+#fox-guide .fox-eye-highlight {
   fill: var(--fox-cream);
 }
 
 #fox-guide .fox-eye,
-#fox-guide .fox-nose {
-  fill: var(--ink);
+#fox-guide .fox-nose,
+#fox-guide .fox-paw,
+#fox-guide .fox-whisker {
+  fill: var(--fox-ink);
 }
 
 /* legs, ears and tail are driven per-frame from JS (inline transform) while
@@ -931,7 +952,7 @@ footer .accent-dot {
 
 #fox-guide #fox-tail-wrap {
   transform-box: fill-box;
-  transform-origin: 92% 85%;
+  transform-origin: 97% 94%;
 }
 
 @media (prefers-reduced-motion: reduce) {
