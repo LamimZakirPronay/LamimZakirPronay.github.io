@@ -196,15 +196,18 @@ function initFox() {
 
   const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const MARGIN = 20;
-  const HOP_HEIGHT = 15; // per-bound height, not a single arc over the whole run
-  const PX_PER_BOUND = 140; // roughly one stride length, so distance sets stride count
-  const MS_PER_BOUND = 150;
-  const MIN_BOUNDS = 2;
-  const MAX_BOUNDS = 6;
-  const FRONT_REACH = 34; // deg, leg swing at full extension
-  const BACK_REACH = 30;
-  const TAIL_SWING = 10;
-  const EAR_TILT = 12;
+  const HOP_HEIGHT = 17; // per-bound height, not a single arc over the whole run
+  const PX_PER_BOUND = 95; // roughly one stride length — smaller = more visibly-running strides
+  const MS_PER_BOUND = 190; // slow enough that the leg swing actually reads, not a blur
+  const MIN_BOUNDS = 3; // even a short hop shows a real multi-step run, not one twitch
+  const MAX_BOUNDS = 8;
+  const FRONT_REACH = 36; // deg, leg swing at full extension
+  const BACK_REACH = 32;
+  const TAIL_SWING = 11;
+  const EAR_TILT = 13;
+  const IDLE_MIN_MS = 3500;
+  const IDLE_MAX_MS = 7500;
+  const WANDER_PX = 130; // how far a spontaneous idle wander roams from its current spot
 
   function xForFraction(frac) {
     const foxWidth = facing.getBoundingClientRect().width || 92;
@@ -215,6 +218,7 @@ function initFox() {
   let currentX = MARGIN;
   let facingLeft = false;
   let runToken = 0;
+  let idleTimer = null;
   guide.style.left = currentX + 'px';
 
   function resetPose() {
@@ -299,21 +303,83 @@ function initFox() {
     requestAnimationFrame(step);
   }
 
+  // a short in-place wiggle (tail + ear only, no travel) — the fox's other
+  // idle behavior alongside wandering, so it isn't *always* walking somewhere
+  function fidgetInPlace(onDone) {
+    if (prefersReduced) {
+      if (onDone) onDone();
+      return;
+    }
+    const myRun = ++runToken;
+    const startTime = performance.now();
+    const FIDGET_MS = 900;
+    function step(now) {
+      if (myRun !== runToken) return;
+      const t = Math.min(1, (now - startTime) / FIDGET_MS);
+      const decay = 1 - t;
+      const phase = t * Math.PI * 4;
+      tailWrap.style.transform = `rotate(${Math.sin(phase) * 7 * decay}deg)`;
+      earWrap.style.transform = `rotate(${Math.sin(phase * 1.3) * 9 * decay}deg)`;
+      if (t < 1) {
+        requestAnimationFrame(step);
+      } else {
+        tailWrap.style.transform = '';
+        earWrap.style.transform = '';
+        if (onDone) onDone();
+      }
+    }
+    requestAnimationFrame(step);
+  }
+
+  // keeps the fox alive on its own — a little wander or fidget every few
+  // seconds whenever nothing else (a section change, a click) is happening
+  function scheduleIdle() {
+    clearTimeout(idleTimer);
+    if (prefersReduced) return;
+    const delay = IDLE_MIN_MS + Math.random() * (IDLE_MAX_MS - IDLE_MIN_MS);
+    idleTimer = setTimeout(doIdleAction, delay);
+  }
+
+  function doIdleAction() {
+    if (Math.random() < 0.55) {
+      const foxWidth = facing.getBoundingClientRect().width || 108;
+      const minX = MARGIN;
+      const maxX = Math.max(MARGIN, window.innerWidth - foxWidth - MARGIN);
+      let target = currentX + (Math.random() * 2 - 1) * WANDER_PX;
+      target = Math.max(minX, Math.min(maxX, target));
+      runTo(target, scheduleIdle);
+    } else {
+      fidgetInPlace(scheduleIdle);
+    }
+  }
+
   function goToSection(fraction, name) {
-    runTo(xForFraction(fraction), () => announce(name));
+    clearTimeout(idleTimer); // a real navigation event always pre-empts ambient wandering
+    runTo(xForFraction(fraction), () => {
+      announce(name);
+      scheduleIdle();
+    });
   }
 
   let msgIndex = 0;
   btn.addEventListener('click', () => {
+    clearTimeout(idleTimer);
     showLabel(FOX_MESSAGES[msgIndex % FOX_MESSAGES.length], 2600);
     msgIndex++;
     if (!prefersReduced) {
       runToken++; // cancel any in-flight run so the click-jump owns the bob transform
       resetPose();
       bob.classList.add('jump');
-      setTimeout(() => bob.classList.remove('jump'), 520);
+      setTimeout(() => {
+        bob.classList.remove('jump');
+        scheduleIdle();
+      }, 520);
+    } else {
+      scheduleIdle();
     }
   });
+
+  scheduleIdle();
 
   window.addEventListener('resize', () => {
     const foxWidth = facing.getBoundingClientRect().width || 92;

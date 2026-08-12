@@ -815,8 +815,8 @@ footer .accent-dot {
 /* three nested layers so positioning / facing-flip / walk-bob never fight
    over the same `transform` property */
 #fox-guide .fox-facing {
-  width: 92px;
-  height: 58px;
+  width: 108px;
+  height: 68px;
   transition: transform 0.2s ease;
 }
 
@@ -964,7 +964,7 @@ footer .accent-dot {
   }
 
   #fox-guide .fox-facing {
-    width: 68px;
-    height: 43px;
+    width: 80px;
+    height: 50px;
   }
 }
