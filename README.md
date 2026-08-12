@@ -1,8 +1,9 @@
 # Lamim Zakir Pronay — Portfolio
 
-A single-page portfolio site with a Matrix / codebreaking-terminal aesthetic,
-built with vanilla JS + Vite (no framework, no backend — deploys as static
-files to GitHub Pages).
+A single-page portfolio site with a minimalist look (cream / ink / rust,
+Manrope type) and a small geometric fox that lives in the corner and
+announces whichever section is in view. Built with vanilla JS + Vite (no
+framework, no backend — deploys as static files to GitHub Pages).
 
 ## Before you deploy
 
@@ -62,6 +63,7 @@ broken-image icons, no manual asset management.
 ## Stack
 
 - [Vite](https://vitejs.dev/) — build tool, no framework
-- Vanilla JS (ES modules) — canvas Matrix rain, scramble/decode text effect,
-  scroll-reveal via `IntersectionObserver`
-- Plain CSS with custom properties — no CSS framework
+- Vanilla JS (ES modules) — scroll-reveal and the fox guide's scroll-tilt /
+  section-announce behavior, both via `IntersectionObserver`
+- Plain CSS with custom properties — 3-hue palette (`--bg`, `--ink`,
+  `--accent`), no CSS framework

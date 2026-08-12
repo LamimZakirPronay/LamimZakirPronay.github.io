@@ -1,57 +1,6 @@
 import './style.css';
 import { profile, experience, teaching, education, publications, projects, leadership, skills } from './data.js';
-import { initMatrixRain } from './matrix.js';
-import { decodeText, observeDecodeTargets } from './decode.js';
 import { orgBadge } from './logo.js';
-
-// ---------------------------------------------------------------------------
-// theme (dark "matrix" / light "declassified dossier")
-// ---------------------------------------------------------------------------
-const THEME_KEY = 'theme';
-let stopMatrixRain = null;
-
-function labelFor(theme) {
-  return theme === 'light' ? 'mode: light' : 'mode: dark';
-}
-
-function applyTheme(theme, canvas) {
-  document.documentElement.dataset.theme = theme;
-  localStorage.setItem(THEME_KEY, theme);
-
-  const btn = document.getElementById('theme-toggle');
-  if (btn) btn.textContent = labelFor(theme);
-
-  if (theme === 'dark' && !stopMatrixRain) {
-    stopMatrixRain = initMatrixRain(canvas);
-  } else if (theme === 'light' && stopMatrixRain) {
-    stopMatrixRain();
-    stopMatrixRain = null;
-  }
-}
-
-function initTheme() {
-  const canvas = document.getElementById('matrix-canvas');
-  const saved = localStorage.getItem(THEME_KEY);
-  applyTheme(saved === 'light' ? 'light' : 'dark', canvas);
-
-  document.getElementById('theme-toggle').addEventListener('click', () => {
-    const next = document.documentElement.dataset.theme === 'light' ? 'dark' : 'light';
-    applyTheme(next, canvas);
-  });
-}
-
-// ---------------------------------------------------------------------------
-// boot sequence
-// ---------------------------------------------------------------------------
-function runBoot() {
-  const screen = document.getElementById('boot-screen');
-  const lines = screen.querySelectorAll('.boot-line');
-  lines.forEach((line, i) => {
-    setTimeout(() => line.classList.add('show'), i * 260);
-  });
-  const total = lines.length * 260 + 500;
-  setTimeout(() => screen.classList.add('hidden'), total);
-}
 
 // ---------------------------------------------------------------------------
 // formatting helpers
@@ -154,7 +103,7 @@ function renderPublications() {
   const el = document.getElementById('pub-list');
   publications.forEach((p) => {
     const item = document.createElement('div');
-    item.className = 'pub-item';
+    item.className = 'pub-item card';
     item.appendChild(orgBadge(p.venue, p.domain));
     item.insertAdjacentHTML(
       'beforeend',
@@ -175,7 +124,7 @@ function renderProjects() {
   const el = document.getElementById('project-list');
   projects.forEach((p) => {
     const card = document.createElement('div');
-    card.className = 'project-card';
+    card.className = 'project-card card';
     const tags = p.stack.map((s) => `<span class="tag">${s}</span>`).join('');
     card.innerHTML = `
       <h3>${p.title}</h3>
@@ -190,7 +139,7 @@ function renderSkills() {
   const el = document.getElementById('skills-list');
   Object.entries(skills).forEach(([category, list]) => {
     const card = document.createElement('div');
-    card.className = 'skill-card';
+    card.className = 'skill-card card';
     const tags = list.map((s) => `<span class="tag">${s}</span>`).join('');
     card.innerHTML = `<h4>${category}</h4><div class="tag-row">${tags}</div>`;
     el.appendChild(card);
@@ -219,9 +168,51 @@ function renderContact() {
 }
 
 // ---------------------------------------------------------------------------
+// fox guide — tilts with scroll motion, announces the active section
+// ---------------------------------------------------------------------------
+function initFox() {
+  const guide = document.getElementById('fox-guide');
+  const rotateEl = document.getElementById('fox-rotate');
+  const label = document.getElementById('fox-label');
+  if (!guide || !rotateEl || !label) return { announce: () => {} };
+
+  let lastY = window.scrollY;
+  let tiltResetTimer = null;
+  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function onScroll() {
+    if (prefersReduced) return;
+    const y = window.scrollY;
+    const delta = y - lastY;
+    lastY = y;
+    const tilt = Math.max(-10, Math.min(10, delta * 1.4));
+    rotateEl.style.transform = `rotate(${tilt}deg)`;
+    clearTimeout(tiltResetTimer);
+    tiltResetTimer = setTimeout(() => {
+      rotateEl.style.transform = 'rotate(0deg)';
+    }, 220);
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+
+  let labelHideTimer = null;
+  let perkTimer = null;
+  function announce(text) {
+    label.textContent = text;
+    label.classList.add('show');
+    guide.classList.add('listening');
+    clearTimeout(labelHideTimer);
+    clearTimeout(perkTimer);
+    perkTimer = setTimeout(() => guide.classList.remove('listening'), 500);
+    labelHideTimer = setTimeout(() => label.classList.remove('show'), 1800);
+  }
+
+  return { announce };
+}
+
+// ---------------------------------------------------------------------------
 // nav behaviour
 // ---------------------------------------------------------------------------
-function initNav() {
+function initNav(fox) {
   const toggle = document.getElementById('nav-toggle');
   const links = document.getElementById('nav-links');
   toggle.addEventListener('click', () => links.classList.toggle('open'));
@@ -233,7 +224,9 @@ function initNav() {
     (entries) => {
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
-          navAnchors.forEach((a) => a.classList.toggle('active', a.getAttribute('href') === `#${entry.target.id}`));
+          const match = navAnchors.find((a) => a.getAttribute('href') === `#${entry.target.id}`);
+          navAnchors.forEach((a) => a.classList.toggle('active', a === match));
+          if (match) fox.announce(match.textContent);
         }
       });
     },
@@ -265,12 +258,6 @@ function initReveal() {
 // boot
 // ---------------------------------------------------------------------------
 document.addEventListener('DOMContentLoaded', () => {
-  runBoot();
-  initTheme();
-
-  decodeText(document.getElementById('hero-name'), profile.name, { tickMs: 35, ticksPerChar: 2.2 });
-  observeDecodeTargets();
-
   renderExperience();
   renderTeaching();
   renderEducation();
@@ -280,7 +267,8 @@ document.addEventListener('DOMContentLoaded', () => {
   renderSkills();
   renderContact();
 
-  initNav();
+  const fox = initFox();
+  initNav(fox);
   initReveal();
 
   document.getElementById('year').textContent = new Date().getFullYear();

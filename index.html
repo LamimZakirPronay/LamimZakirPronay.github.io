@@ -8,51 +8,45 @@
       name="description"
       content="Lamim Zakir Pronay — Software Engineer building full-stack, Salesforce, and applied AI/ML systems. Published researcher in vision-language models and knowledge graphs."
     />
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💻</text></svg>" />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Cpolygon fill='%23d9622b' points='14,48 34,10 46,50'/%3E%3Cpolygon fill='%23d9622b' points='106,48 86,10 74,50'/%3E%3Cpath fill='%23d9622b' d='M16,50 L46,42 L60,30 L74,42 L104,50 L92,88 L60,112 L28,88 Z'/%3E%3Ccircle fill='%23221b16' cx='46' cy='58' r='5'/%3E%3Ccircle fill='%23221b16' cx='74' cy='58' r='5'/%3E%3C/svg%3E"
+    />
     <link rel="stylesheet" href="/src/style.css" />
-    <script>
-      // set before first paint so a saved "light" preference never flashes dark
-      if (localStorage.getItem('theme') === 'light') {
-        document.documentElement.dataset.theme = 'light';
-      }
-    </script>
   </head>
   <body>
-    <div id="boot-screen">
-      <div class="boot-line" data-line>root@pronay:~$ ./init_profile.sh</div>
-      <div class="boot-line" data-line>[ OK ] loading identity matrix...</div>
-      <div class="boot-line" data-line>[ OK ] decrypting career history (AES-256)...</div>
-      <div class="boot-line" data-line>[ OK ] mounting research archive (5 publications)...</div>
-      <div class="boot-line" data-line>[ OK ] compiling experience timeline...</div>
-      <div class="boot-line" data-line style="color:#e2b13c">ACCESS GRANTED<span class="boot-cursor"></span></div>
-    </div>
-
-    <canvas id="matrix-canvas"></canvas>
-    <div class="bg-vignette"></div>
-    <div class="scanlines"></div>
-
     <header class="site-nav">
       <div class="wrap">
-        <div class="brand"><span class="prompt">$</span> lamim@portfolio</div>
-        <nav class="links" id="nav-links">
-          <a href="#about">about</a>
-          <a href="#experience">experience</a>
-          <a href="#research">research</a>
-          <a href="#projects">projects</a>
-          <a href="#skills">skills</a>
-          <a href="#contact">contact</a>
-        </nav>
-        <div class="nav-controls">
-          <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Switch theme"></button>
-          <button class="nav-toggle" id="nav-toggle" aria-label="Toggle navigation">≡</button>
+        <div class="brand">
+          <span class="brand-mark">
+            <svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+              <path fill="var(--accent)" d="M16,50 L46,42 L60,30 L74,42 L104,50 L92,88 L60,112 L28,88 Z" />
+              <polygon fill="var(--accent)" points="14,48 34,10 46,50" />
+              <polygon fill="var(--accent)" points="106,48 86,10 74,50" />
+              <ellipse fill="var(--bg)" cx="42" cy="68" rx="13" ry="19" transform="rotate(-8 42 68)" />
+              <ellipse fill="var(--bg)" cx="78" cy="68" rx="13" ry="19" transform="rotate(8 78 68)" />
+              <circle fill="var(--ink)" cx="46" cy="58" r="4.5" />
+              <circle fill="var(--ink)" cx="74" cy="58" r="4.5" />
+            </svg>
+          </span>
+          Lamim Zakir Pronay
         </div>
+        <nav class="links" id="nav-links">
+          <a href="#about">About</a>
+          <a href="#experience">Experience</a>
+          <a href="#research">Research</a>
+          <a href="#projects">Projects</a>
+          <a href="#skills">Skills</a>
+          <a href="#contact">Contact</a>
+        </nav>
+        <button class="nav-toggle" id="nav-toggle" aria-label="Toggle navigation">≡</button>
       </div>
     </header>
 
     <main>
       <section class="hero wrap">
         <div class="kicker">Software Engineer / Researcher</div>
-        <h1 id="hero-name"></h1>
+        <h1>Lamim Zakir Pronay</h1>
         <div class="role">Full-Stack &amp; Salesforce Engineer — Applied AI/ML Researcher</div>
         <p class="tagline">
           I build production systems for financial institutions by day and publish research on
@@ -60,22 +54,20 @@
           + Java stacks, previously deep in Vision Transformers, generative AI, and robotics.
         </p>
         <div class="cta-row">
-          <a href="#experience" class="btn">cat experience.log</a>
-          <a href="#contact" class="btn ghost">./contact_me</a>
+          <a href="#experience" class="btn">View Experience</a>
+          <a href="#contact" class="btn ghost">Get in Touch</a>
         </div>
         <div class="scroll-hint"><span class="bar"></span>scroll</div>
       </section>
 
       <section id="about" class="wrap">
         <div class="section-head reveal">
-          <span class="idx">01</span>
-          <h2 data-decode="whoami">whoami</h2>
-          <span class="rule"></span>
+          <span class="eyebrow">01</span>
+          <h2>About</h2>
         </div>
         <div class="about-grid reveal">
-          <div class="term">
-            <div class="term-bar"><span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span> about.md</div>
-            <div class="term-body">
+          <div class="card">
+            <div style="padding: 28px">
               <p>
                 I'm a Software Development Engineer II at Accelerize360, building Salesforce and
                 Java-based solutions for a large U.S. financial institution's insurance line of
@@ -96,9 +88,8 @@
               </p>
             </div>
           </div>
-          <div class="term">
-            <div class="term-bar"><span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span> stats.json</div>
-            <div class="term-body">
+          <div class="card">
+            <div style="padding: 28px">
               <div class="stat-list">
                 <div class="stat"><b>5</b><span>Published research papers</span></div>
                 <div class="stat"><b>5</b><span>Salesforce certifications</span></div>
@@ -112,85 +103,96 @@
 
       <section id="experience" class="wrap">
         <div class="section-head reveal">
-          <span class="idx">02</span>
-          <h2 data-decode="experience --all">experience --all</h2>
-          <span class="rule"></span>
+          <span class="eyebrow">02</span>
+          <h2>Experience</h2>
         </div>
         <div class="timeline reveal" id="experience-list"></div>
       </section>
 
       <section id="teaching" class="wrap">
         <div class="section-head reveal">
-          <span class="idx">03</span>
-          <h2 data-decode="teaching.log">teaching.log</h2>
-          <span class="rule"></span>
+          <span class="eyebrow">03</span>
+          <h2>Teaching</h2>
         </div>
         <div class="simple-list reveal" id="teaching-list"></div>
       </section>
 
       <section id="education" class="wrap">
         <div class="section-head reveal">
-          <span class="idx">04</span>
-          <h2 data-decode="education.db">education.db</h2>
-          <span class="rule"></span>
+          <span class="eyebrow">04</span>
+          <h2>Education</h2>
         </div>
         <div class="simple-list reveal" id="education-list"></div>
       </section>
 
       <section id="research" class="wrap">
         <div class="section-head reveal">
-          <span class="idx">05</span>
-          <h2 data-decode="grep -r publications/">grep -r publications/</h2>
-          <span class="rule"></span>
+          <span class="eyebrow">05</span>
+          <h2>Research &amp; Publications</h2>
         </div>
         <div class="pub-list reveal" id="pub-list"></div>
       </section>
 
       <section id="projects" class="wrap">
         <div class="section-head reveal">
-          <span class="idx">06</span>
-          <h2 data-decode="ls projects/">ls projects/</h2>
-          <span class="rule"></span>
+          <span class="eyebrow">06</span>
+          <h2>Projects</h2>
         </div>
         <div class="project-grid reveal" id="project-list"></div>
       </section>
 
       <section id="leadership" class="wrap">
         <div class="section-head reveal">
-          <span class="idx">07</span>
-          <h2 data-decode="leadership.log">leadership.log</h2>
-          <span class="rule"></span>
+          <span class="eyebrow">07</span>
+          <h2>Leadership</h2>
         </div>
         <div class="simple-list reveal" id="leadership-list"></div>
       </section>
 
       <section id="skills" class="wrap">
         <div class="section-head reveal">
-          <span class="idx">08</span>
-          <h2 data-decode="cat skills.yaml">cat skills.yaml</h2>
-          <span class="rule"></span>
+          <span class="eyebrow">08</span>
+          <h2>Skills</h2>
         </div>
         <div class="skills-grid reveal" id="skills-list"></div>
       </section>
 
       <section id="contact" class="wrap">
-        <div class="term contact-term reveal">
-          <div class="term-bar"><span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span> contact.sh</div>
-          <div class="term-body">
-            <h2 data-decode="let's build something">let's build something</h2>
-            <p>
-              Open to full-stack, Salesforce, and applied AI/ML roles and collaborations.
-              Fastest way to reach me is email — I read everything.
-            </p>
-            <div class="contact-links" id="contact-links"></div>
-          </div>
+        <div class="card contact-card reveal">
+          <h2>Let's build something</h2>
+          <p>
+            Open to full-stack, Salesforce, and applied AI/ML roles and collaborations.
+            Fastest way to reach me is email — I read everything.
+          </p>
+          <div class="contact-links" id="contact-links"></div>
         </div>
       </section>
     </main>
 
     <footer>
-      built with vite, deployed on github pages <span class="heart">//</span> © <span id="year"></span> Lamim Zakir Pronay
+      built with vite, deployed on github pages <span class="accent-dot">·</span> © <span id="year"></span> Lamim Zakir Pronay
     </footer>
+
+    <div id="fox-guide" aria-hidden="true">
+      <span class="fox-label" id="fox-label"></span>
+      <div class="fox-wrap" id="fox-rotate">
+        <div class="fox-float">
+          <svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+            <path class="fox-head" d="M16,50 L46,42 L60,30 L74,42 L104,50 L92,88 L60,112 L28,88 Z" />
+            <polygon class="fox-ear-l" points="14,48 34,10 46,50" />
+            <polygon class="fox-ear-r" points="106,48 86,10 74,50" />
+            <polygon class="fox-inner-ear" points="20,42 33,18 39,44" />
+            <polygon class="fox-inner-ear" points="100,42 87,18 81,44" />
+            <ellipse class="fox-cheek" cx="42" cy="68" rx="13" ry="19" transform="rotate(-8 42 68)" />
+            <ellipse class="fox-cheek" cx="78" cy="68" rx="13" ry="19" transform="rotate(8 78 68)" />
+            <ellipse class="fox-cheek" cx="60" cy="93" rx="11" ry="15" />
+            <circle class="fox-eye" cx="46" cy="58" r="4.5" />
+            <circle class="fox-eye" cx="74" cy="58" r="4.5" />
+            <polygon class="fox-nose" points="54,90 66,90 60,100" />
+          </svg>
+        </div>
+      </div>
+    </div>
 
     <script type="module" src="/src/main.js"></script>
   </body>
