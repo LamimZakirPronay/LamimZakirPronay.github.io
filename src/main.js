@@ -168,8 +168,9 @@ function renderContact() {
 }
 
 // ---------------------------------------------------------------------------
-// fox guide — walks left-to-right as you scroll top-to-bottom of the page,
-// announces the active section, and reacts to a click/tap with a message
+// fox guide — sits still, then runs + hops to a new spot each time you cross
+// into a new section, landing roughly in step with how far through the page
+// that section is. A click/tap gets a separate small in-place jump + message.
 // ---------------------------------------------------------------------------
 const FOX_MESSAGES = [
   'Five research papers published, and counting.',
@@ -185,21 +186,22 @@ function initFox() {
   const bob = document.getElementById('fox-bob');
   const btn = document.getElementById('fox-btn');
   const label = document.getElementById('fox-label');
-  if (!guide || !facing || !bob || !btn || !label) return { announce: () => {} };
+  if (!guide || !facing || !bob || !btn || !label) return { goToSection: () => {}, announce: () => {} };
 
   const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const MARGIN = 20;
+  const HOP_HEIGHT = 26;
+  const RUN_MS = 620;
 
-  function computeTargetX() {
+  function xForFraction(frac) {
     const foxWidth = facing.getBoundingClientRect().width || 92;
-    const max = document.documentElement.scrollHeight - window.innerHeight;
-    const frac = max > 0 ? Math.min(1, Math.max(0, window.scrollY / max)) : 0;
     const travel = Math.max(0, window.innerWidth - foxWidth - MARGIN * 2);
-    return MARGIN + frac * travel;
+    return MARGIN + Math.min(1, Math.max(0, frac)) * travel;
   }
 
-  let currentX = computeTargetX();
+  let currentX = MARGIN;
   let facingLeft = false;
+  let runToken = 0;
   guide.style.left = currentX + 'px';
 
   let labelHideTimer = null;
@@ -218,45 +220,76 @@ function initFox() {
     showLabel(text, 1800);
   }
 
+  const easeOutCubic = (t) => 1 - Math.pow(1 - t, 3);
+
+  function runTo(targetX, onArrive) {
+    if (prefersReduced) {
+      currentX = targetX;
+      guide.style.left = currentX + 'px';
+      if (onArrive) onArrive();
+      return;
+    }
+    const dx = targetX - currentX;
+    if (Math.abs(dx) < 1) {
+      if (onArrive) onArrive();
+      return;
+    }
+    const myRun = ++runToken;
+    const startX = currentX;
+    const startTime = performance.now();
+    const goingLeft = dx < 0;
+    if (goingLeft !== facingLeft) {
+      facingLeft = goingLeft;
+      facing.classList.toggle('face-left', facingLeft);
+    }
+    bob.classList.remove('jump');
+    bob.classList.add('running');
+
+    function step(now) {
+      if (myRun !== runToken) return; // a newer run superseded this one
+      const t = Math.min(1, (now - startTime) / RUN_MS);
+      currentX = startX + dx * easeOutCubic(t);
+      const hop = -Math.sin(t * Math.PI) * HOP_HEIGHT;
+      guide.style.left = currentX + 'px';
+      bob.style.transform = `translateY(${hop}px)`;
+      if (t < 1) {
+        requestAnimationFrame(step);
+      } else {
+        bob.classList.remove('running');
+        bob.style.transform = '';
+        if (onArrive) onArrive();
+      }
+    }
+    requestAnimationFrame(step);
+  }
+
+  function goToSection(fraction, name) {
+    runTo(xForFraction(fraction), () => announce(name));
+  }
+
   let msgIndex = 0;
   btn.addEventListener('click', () => {
     showLabel(FOX_MESSAGES[msgIndex % FOX_MESSAGES.length], 2600);
     msgIndex++;
     if (!prefersReduced) {
-      bob.classList.remove('walking');
+      runToken++; // cancel any in-flight run so the click-jump owns the bob transform
+      bob.classList.remove('running');
+      bob.style.transform = '';
       bob.classList.add('jump');
       setTimeout(() => bob.classList.remove('jump'), 520);
     }
   });
 
-  if (prefersReduced) {
-    window.addEventListener('resize', () => {
-      guide.style.left = computeTargetX() + 'px';
-    });
-    return { announce };
-  }
-
-  function frame() {
-    const targetX = computeTargetX();
-    const dx = targetX - currentX;
-    if (Math.abs(dx) > 0.4) {
-      currentX += dx * 0.08;
-      bob.classList.add('walking');
-      const goingLeft = dx < 0;
-      if (goingLeft !== facingLeft) {
-        facingLeft = goingLeft;
-        facing.classList.toggle('face-left', facingLeft);
-      }
-    } else {
-      currentX = targetX;
-      bob.classList.remove('walking');
+  window.addEventListener('resize', () => {
+    const foxWidth = facing.getBoundingClientRect().width || 92;
+    const maxX = Math.max(MARGIN, window.innerWidth - foxWidth - MARGIN);
+    if (currentX > maxX) {
+      currentX = maxX;
+      guide.style.left = currentX + 'px';
     }
-    guide.style.left = currentX + 'px';
-    requestAnimationFrame(frame);
-  }
-  requestAnimationFrame(frame);
+  });
 
-  return { announce };
+  return { goToSection, announce };
 }
 
 // ---------------------------------------------------------------------------
@@ -274,9 +307,13 @@ function initNav(fox) {
     (entries) => {
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
+          const index = sections.indexOf(entry.target);
           const match = navAnchors.find((a) => a.getAttribute('href') === `#${entry.target.id}`);
           navAnchors.forEach((a) => a.classList.toggle('active', a === match));
-          if (match) fox.announce(match.textContent);
+          if (match) {
+            const fraction = sections.length > 1 ? index / (sections.length - 1) : 0;
+            fox.goToSection(fraction, match.textContent);
+          }
         }
       });
     },

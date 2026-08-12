@@ -827,24 +827,13 @@ footer .accent-dot {
 #fox-guide .fox-bob {
   width: 100%;
   height: 100%;
-}
-
-#fox-guide .fox-bob.walking {
-  animation: fox-walk-bob 0.45s ease-in-out infinite;
+  /* horizontal-travel hop arc is driven by JS (inline transform), kept in
+     sync with the run tween — only the in-place click "jump" uses a CSS
+     keyframe, since that one isn't chasing a moving target */
 }
 
 #fox-guide .fox-bob.jump {
   animation: fox-jump 0.5s ease;
-}
-
-@keyframes fox-walk-bob {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-3px);
-  }
 }
 
 @keyframes fox-jump {
@@ -917,39 +906,38 @@ footer .accent-dot {
   transform-origin: 50% 0%;
 }
 
-#fox-guide .fox-bob.walking .fox-leg-front {
-  animation: fox-walk-front 0.45s ease-in-out infinite;
+#fox-guide .fox-bob.running .fox-leg-front {
+  animation: fox-run-front 0.2s ease-in-out infinite;
 }
 
-#fox-guide .fox-bob.walking .fox-leg-back {
-  animation: fox-walk-back 0.45s ease-in-out infinite;
+#fox-guide .fox-bob.running .fox-leg-back {
+  animation: fox-run-back 0.2s ease-in-out infinite;
 }
 
-@keyframes fox-walk-front {
+@keyframes fox-run-front {
   0%,
   100% {
-    transform: rotate(18deg);
+    transform: rotate(30deg);
   }
   50% {
-    transform: rotate(-18deg);
+    transform: rotate(-30deg);
   }
 }
 
-@keyframes fox-walk-back {
+@keyframes fox-run-back {
   0%,
   100% {
-    transform: rotate(-18deg);
+    transform: rotate(-30deg);
   }
   50% {
-    transform: rotate(18deg);
+    transform: rotate(30deg);
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  #fox-guide .fox-bob.walking,
   #fox-guide .fox-bob.jump,
-  #fox-guide .fox-bob.walking .fox-leg-front,
-  #fox-guide .fox-bob.walking .fox-leg-back {
+  #fox-guide .fox-bob.running .fox-leg-front,
+  #fox-guide .fox-bob.running .fox-leg-back {
     animation: none;
   }
 }
