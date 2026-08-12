@@ -1,17 +1,24 @@
 @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
 :root {
-  --bg: #faf5ee;
-  --bg-card: #fffdfa;
-  --ink: #221b16;
-  --ink-soft: rgba(34, 27, 22, 0.64);
-  --ink-faint: rgba(34, 27, 22, 0.4);
-  --border: rgba(34, 27, 22, 0.12);
-  --border-strong: rgba(34, 27, 22, 0.24);
-  --accent: #d9622b;
-  --accent-strong: #b84f1f;
-  --accent-soft: rgba(217, 98, 43, 0.1);
-  --accent-soft-strong: rgba(217, 98, 43, 0.18);
+  --bg: #f6f8fb;
+  --bg-card: #ffffff;
+  --ink: #10182b;
+  --ink-soft: rgba(16, 24, 43, 0.62);
+  --ink-faint: rgba(16, 24, 43, 0.4);
+  --border: rgba(16, 24, 43, 0.1);
+  --border-strong: rgba(16, 24, 43, 0.2);
+  --accent: #2f6fed;
+  --accent-strong: #1d4fc4;
+  --accent-soft: rgba(47, 111, 237, 0.08);
+  --accent-soft-strong: rgba(47, 111, 237, 0.16);
+  --green: #16a34a;
+  --green-strong: #0f7c38;
+  --green-soft: rgba(22, 163, 74, 0.1);
+  /* the fox keeps its own fixed colors regardless of the site accent —
+     a blue-and-green fox would just look wrong */
+  --fox-orange: #d9622b;
+  --fox-cream: #fffaf3;
   --radius: 10px;
   --radius-sm: 6px;
   --maxw: 1080px;
@@ -114,7 +121,7 @@ header.site-nav {
   left: 0;
   right: 0;
   z-index: 100;
-  background: rgba(250, 245, 238, 0.86);
+  background: rgba(246, 248, 251, 0.86);
   backdrop-filter: blur(10px);
   border-bottom: 1px solid var(--border);
 }
@@ -200,32 +207,36 @@ nav.links a.active::after {
   padding-top: 90px;
 }
 
+header.site-nav {
+  animation: hero-in 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
 .hero .kicker,
 .hero h1,
 .hero .role,
 .hero .tagline,
 .hero .cta-row,
 .hero .scroll-hint {
-  animation: hero-in 0.7s ease both;
+  animation: hero-in 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 .hero .kicker {
-  animation-delay: 0s;
+  animation-delay: 0.1s;
 }
 .hero h1 {
-  animation-delay: 0.08s;
+  animation-delay: 0.18s;
 }
 .hero .role {
-  animation-delay: 0.16s;
+  animation-delay: 0.26s;
 }
 .hero .tagline {
-  animation-delay: 0.24s;
+  animation-delay: 0.34s;
 }
 .hero .cta-row {
-  animation-delay: 0.32s;
+  animation-delay: 0.42s;
 }
 .hero .scroll-hint {
-  animation-delay: 0.4s;
+  animation-delay: 0.5s;
 }
 
 @keyframes hero-in {
@@ -240,6 +251,7 @@ nav.links a.active::after {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  header.site-nav,
   .hero .kicker,
   .hero h1,
   .hero .role,
@@ -433,6 +445,12 @@ nav.links a.active::after {
   height: 100%;
   object-fit: contain;
   padding: 6px;
+  opacity: 0;
+  transition: opacity 0.35s ease;
+}
+
+.org-badge img.loaded {
+  opacity: 1;
 }
 
 .org-badge .mono {
@@ -629,8 +647,8 @@ nav.links a.active::after {
   font-size: 11px;
   padding: 4px 10px;
   border-radius: 20px;
-  background: var(--accent-soft);
-  color: var(--accent-strong);
+  background: var(--green-soft);
+  color: var(--green-strong);
   text-transform: uppercase;
   letter-spacing: 0.4px;
 }
@@ -876,13 +894,13 @@ footer .accent-dot {
 #fox-guide .fox-tail,
 #fox-guide .fox-head,
 #fox-guide .fox-ear {
-  fill: var(--accent);
+  fill: var(--fox-orange);
 }
 
 #fox-guide .fox-belly,
 #fox-guide .fox-tail-tip,
 #fox-guide .fox-inner-ear {
-  fill: var(--bg-card);
+  fill: var(--fox-cream);
 }
 
 #fox-guide .fox-eye,

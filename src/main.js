@@ -196,18 +196,38 @@ function initFox() {
 
   const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const MARGIN = 20;
-  const HOP_HEIGHT = 17; // per-bound height, not a single arc over the whole run
-  const PX_PER_BOUND = 95; // roughly one stride length — smaller = more visibly-running strides
-  const MS_PER_BOUND = 190; // slow enough that the leg swing actually reads, not a blur
-  const MIN_BOUNDS = 3; // even a short hop shows a real multi-step run, not one twitch
-  const MAX_BOUNDS = 8;
-  const FRONT_REACH = 36; // deg, leg swing at full extension
-  const BACK_REACH = 32;
-  const TAIL_SWING = 11;
-  const EAR_TILT = 13;
   const IDLE_MIN_MS = 3500;
   const IDLE_MAX_MS = 7500;
   const WANDER_PX = 130; // how far a spontaneous idle wander roams from its current spot
+
+  // A hand-keyed running cycle, shown one discrete pose at a time (no
+  // tweening between them) — the same technique a sprite-sheet GIF uses,
+  // just drawn as SVG-transform values instead of pre-rendered frames.
+  // legF/legB: leg rotation in degrees. y: body lift in px (0 = down/contact,
+  // negative = airborne). tail/ear: degrees. Frames 0-3 are one full stride;
+  // 4-7 repeat it with legs swapped so the cycle doesn't visibly favor a side.
+  const RUN_FRAMES = [
+    { legF: 20, legB: -5, y: -2, tail: -4, ear: -3 }, // contact
+    { legF: 5, legB: 10, y: 0, tail: 0, ear: 0 }, // gather/compress
+    { legF: -15, legB: 25, y: -6, tail: 4, ear: 5 }, // push off
+    { legF: -32, legB: 30, y: -16, tail: 8, ear: 10 }, // full stretch, airborne
+    { legF: -20, legB: 5, y: -2, tail: 4, ear: 3 }, // contact
+    { legF: -5, legB: -10, y: 0, tail: 0, ear: 0 }, // gather/compress
+    { legF: 15, legB: -25, y: -6, tail: -4, ear: -5 }, // push off
+    { legF: 32, legB: -30, y: -16, tail: -8, ear: -10 } // full stretch, airborne
+  ];
+  const FRAME_MS = 85; // ~11.7fps — a hand-drawn cadence, not a smooth 60fps tween
+  const PX_PER_MS = 0.62; // run speed, sets how long a given distance takes
+  const MIN_RUN_MS = 480;
+  const MAX_RUN_MS = 2200;
+
+  function applyFrame(f) {
+    bob.style.transform = `translateY(${f.y}px)`;
+    legFront.style.transform = `rotate(${f.legF}deg)`;
+    legBack.style.transform = `rotate(${f.legB}deg)`;
+    tailWrap.style.transform = `rotate(${f.tail}deg)`;
+    earWrap.style.transform = `rotate(${f.ear}deg)`;
+  }
 
   function xForFraction(frac) {
     const foxWidth = facing.getBoundingClientRect().width || 92;
@@ -264,34 +284,32 @@ function initFox() {
     const myRun = ++runToken;
     const startX = currentX;
     const dist = Math.abs(dx);
-    const bounds = Math.min(MAX_BOUNDS, Math.max(MIN_BOUNDS, Math.round(dist / PX_PER_BOUND)));
-    const durationMs = bounds * MS_PER_BOUND;
+    const durationMs = Math.min(MAX_RUN_MS, Math.max(MIN_RUN_MS, dist / PX_PER_MS));
     const startTime = performance.now();
     const goingLeft = dx < 0;
-    const dir = goingLeft ? -1 : 1;
     if (goingLeft !== facingLeft) {
       facingLeft = goingLeft;
       facing.classList.toggle('face-left', facingLeft);
     }
     bob.classList.remove('jump');
+    let lastFrameIndex = -1;
 
     function step(now) {
       if (myRun !== runToken) return; // a newer run superseded this one
-      const t = Math.min(1, (now - startTime) / durationMs);
+      const elapsed = now - startTime;
+      const t = Math.min(1, elapsed / durationMs);
+
+      // position glides smoothly across the screen — only the pose stepping
+      // through RUN_FRAMES is discrete, same split a sprite-sheet run uses
+      // (continuous world position, stepped sprite frame)
       currentX = startX + dx * easeRun(t);
       guide.style.left = currentX + 'px';
 
-      // one shared phase drives the hop, both legs' stride, the tail lag and
-      // the ear tilt — that shared timing is what makes it read as one gait
-      const phase = t * bounds * Math.PI;
-      const stride = Math.sin(phase); // -1..1, one full stride cycle per bound
-      const hopFactor = Math.abs(stride); // 0 at every landing, 1 at every peak
-
-      bob.style.transform = `translateY(${-hopFactor * HOP_HEIGHT}px) scaleY(${1 + hopFactor * 0.05})`;
-      legFront.style.transform = `rotate(${dir * FRONT_REACH * stride}deg)`;
-      legBack.style.transform = `rotate(${-dir * BACK_REACH * stride}deg)`;
-      tailWrap.style.transform = `rotate(${dir * TAIL_SWING * Math.sin(phase - 0.6)}deg)`;
-      earWrap.style.transform = `rotate(${-dir * EAR_TILT * hopFactor}deg)`;
+      const frameIndex = Math.floor(elapsed / FRAME_MS) % RUN_FRAMES.length;
+      if (frameIndex !== lastFrameIndex) {
+        lastFrameIndex = frameIndex;
+        applyFrame(RUN_FRAMES[frameIndex]);
+      }
 
       if (t < 1) {
         requestAnimationFrame(step);
@@ -367,11 +385,19 @@ function initFox() {
     showLabel(FOX_MESSAGES[msgIndex % FOX_MESSAGES.length], 2600);
     msgIndex++;
     if (!prefersReduced) {
-      runToken++; // cancel any in-flight run so the click-jump owns the bob transform
+      runToken++; // cancel any in-flight run so the click-jump owns these transforms
       resetPose();
+      // legs splay into the same full-stretch pose the run cycle uses, while
+      // the CSS keyframe handles the bob's own up-down arc for this one
+      const leap = RUN_FRAMES[3];
+      legFront.style.transform = `rotate(${leap.legF}deg)`;
+      legBack.style.transform = `rotate(${leap.legB}deg)`;
+      tailWrap.style.transform = `rotate(${leap.tail}deg)`;
+      earWrap.style.transform = `rotate(${leap.ear}deg)`;
       bob.classList.add('jump');
       setTimeout(() => {
         bob.classList.remove('jump');
+        resetPose();
         scheduleIdle();
       }, 520);
     } else {

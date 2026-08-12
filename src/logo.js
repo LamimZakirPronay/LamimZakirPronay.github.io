@@ -17,6 +17,7 @@ export function orgBadge(name, domain) {
     img.src = `https://logo.clearbit.com/${domain}?size=96`;
     img.alt = `${name} logo`;
     img.loading = 'lazy';
+    img.onload = () => img.classList.add('loaded');
     img.onerror = () => {
       wrap.innerHTML = `<span class="mono">${initials}</span>`;
     };
