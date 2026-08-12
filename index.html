@@ -10,6 +10,12 @@
     />
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💻</text></svg>" />
     <link rel="stylesheet" href="/src/style.css" />
+    <script>
+      // set before first paint so a saved "light" preference never flashes dark
+      if (localStorage.getItem('theme') === 'light') {
+        document.documentElement.dataset.theme = 'light';
+      }
+    </script>
   </head>
   <body>
     <div id="boot-screen">
@@ -36,7 +42,10 @@
           <a href="#skills">skills</a>
           <a href="#contact">contact</a>
         </nav>
-        <button class="nav-toggle" id="nav-toggle" aria-label="Toggle navigation">≡</button>
+        <div class="nav-controls">
+          <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Switch theme"></button>
+          <button class="nav-toggle" id="nav-toggle" aria-label="Toggle navigation">≡</button>
+        </div>
       </div>
     </header>
 

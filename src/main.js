@@ -5,6 +5,42 @@ import { decodeText, observeDecodeTargets } from './decode.js';
 import { orgBadge } from './logo.js';
 
 // ---------------------------------------------------------------------------
+// theme (dark "matrix" / light "declassified dossier")
+// ---------------------------------------------------------------------------
+const THEME_KEY = 'theme';
+let stopMatrixRain = null;
+
+function labelFor(theme) {
+  return theme === 'light' ? 'mode: light' : 'mode: dark';
+}
+
+function applyTheme(theme, canvas) {
+  document.documentElement.dataset.theme = theme;
+  localStorage.setItem(THEME_KEY, theme);
+
+  const btn = document.getElementById('theme-toggle');
+  if (btn) btn.textContent = labelFor(theme);
+
+  if (theme === 'dark' && !stopMatrixRain) {
+    stopMatrixRain = initMatrixRain(canvas);
+  } else if (theme === 'light' && stopMatrixRain) {
+    stopMatrixRain();
+    stopMatrixRain = null;
+  }
+}
+
+function initTheme() {
+  const canvas = document.getElementById('matrix-canvas');
+  const saved = localStorage.getItem(THEME_KEY);
+  applyTheme(saved === 'light' ? 'light' : 'dark', canvas);
+
+  document.getElementById('theme-toggle').addEventListener('click', () => {
+    const next = document.documentElement.dataset.theme === 'light' ? 'dark' : 'light';
+    applyTheme(next, canvas);
+  });
+}
+
+// ---------------------------------------------------------------------------
 // boot sequence
 // ---------------------------------------------------------------------------
 function runBoot() {
@@ -230,9 +266,7 @@ function initReveal() {
 // ---------------------------------------------------------------------------
 document.addEventListener('DOMContentLoaded', () => {
   runBoot();
-
-  const canvas = document.getElementById('matrix-canvas');
-  initMatrixRain(canvas);
+  initTheme();
 
   decodeText(document.getElementById('hero-name'), profile.name, { tickMs: 35, ticksPerChar: 2.2 });
   observeDecodeTargets();
