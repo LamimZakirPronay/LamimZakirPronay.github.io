@@ -12,10 +12,11 @@ export const profile = {
   location: 'Dhaka, Bangladesh',
   links: {
     linkedin: 'https://www.linkedin.com/in/lamim-zakir-pronay/',
-    // TODO: I couldn't confidently find/verify these — a Scholar search hit
-    // returned a co-author's profile (Rupesh Kumar Yadav Mediboyina, IIT
-    // Bombay), not yours, so I left it out rather than link the wrong person.
-    github: 'https://github.com/REPLACE_ME',
+    github: 'https://github.com/LamimZakirPronay',
+    // TODO: still unverified — a Scholar search hit returned a co-author's
+    // profile (Rupesh Kumar Yadav Mediboyina, IIT Bombay), not yours, so
+    // this is left out rather than linking the wrong person. Send me your
+    // actual Scholar profile URL and I'll wire it in.
     scholar: 'https://scholar.google.com/citations?user=REPLACE_ME'
   }
 };
@@ -70,9 +71,9 @@ export const experience = [
     start: '2024-09',
     end: '2024-12',
     bullets: [
-      'Researched next-generation transport protocols under Dr. P. Manjunath.',
-      "Focused on the QUIC protocol's BBR congestion control across diverse network topologies.",
-      'Used ns-3 to evaluate throughput, latency, and congestion-control efficiency.'
+      'Researched next-generation transport protocols under Dr. P. Manjunath, studying QUIC fundamentals — connection establishment, stream multiplexing, and packet encryption.',
+      'Benchmarked four congestion control algorithms (BBR, CUBIC, NewReno, Vegas) integrated with QUIC across simple and complex bottleneck topologies using ns-3.',
+      'Quantified how algorithm choice and bottleneck complexity affect throughput, latency, and congestion-control efficiency, providing empirical insights for protocol optimization.'
     ]
   },
   {
@@ -120,7 +121,7 @@ export const teaching = [
     role: 'Teaching Assistant — Data Structures & Algorithms Lab',
     org: 'National Institute of Technology Andhra Pradesh',
     domain: 'nitandhra.ac.in',
-    start: '2023-08',
+    start: '2023-01',
     end: '2023-12'
   },
   {
@@ -203,6 +204,13 @@ export const publications = [
 
 export const projects = [
   {
+    title: 'LoRa Mesh Network for Forest Surveillance',
+    stack: ['LoRa E22', 'ESP32', 'Raspberry Pi', 'Python', 'Edge AI'],
+    summary:
+      'Deployed a multi-node LoRa mesh network across a 5 km radius in Bandarban forest, providing wireless coverage with no existing infrastructure. Built multi-hop relay routing between distributed ESP32-E22 nodes, then integrated a Raspberry Pi 2W running edge-AI computer vision for real-time unauthorized-movement detection with centralized alerting.',
+    link: null
+  },
+  {
     title: 'Ruma Tourism Entry System',
     stack: ['Laravel', 'PHP', 'MySQL'],
     summary:
@@ -246,5 +254,5 @@ export const skills = {
   'Salesforce Ecosystem': ['Omnistudio', 'Flow Orchestration', 'Agentforce', 'SOQL', 'Gearset'],
   'AI / ML': ['Vision Transformers', 'Knowledge Distillation', 'Stable Diffusion', 'ControlNet', 'LIME / XAI'],
   'Cloud & DevOps': ['Docker', 'AWS EKS', 'Kubernetes', 'Bitbucket', 'MuleSoft', 'Zapier'],
-  'Systems & Robotics': ['ROS', 'Gazebo', 'ns-3', 'OpenCV', 'Raspberry Pi']
+  'Systems & Robotics': ['ROS', 'Gazebo', 'ns-3', 'OpenCV', 'Raspberry Pi', 'ESP32', 'LoRa']
 };
